@@ -5,6 +5,7 @@ import pickle
 from collections import OrderedDict
 from pathlib import Path
 import string
+import pandas as pd
 
 import joblib
 import numpy as np
@@ -470,6 +471,12 @@ def cal_feature_IG(sess, all_data, placeholders, info, config, prediction, ig_mo
     visualize_ids = range(all_data.num)
     if args.visualize_resample_num:
         visualize_ids = np.random.choice(visualize_ids, args.visualize_resample_num, replace=False)
+    elif args.visualize_num_list:
+        with open(args.visualize_num_list, "r") as f:
+            l_ = f.read().split(',')
+        l = [int(i) for i in l_]
+        print(l)
+        visualize_ids = list(l)
     for compound_id in visualize_ids:
         s = time.time()
         batch_idx = [compound_id]

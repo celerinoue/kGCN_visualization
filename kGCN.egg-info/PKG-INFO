@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: kGCN
+Version: 1.0
+Summary: graph convolutional network library
+Home-page: https://github.com/clinfo/kGCN
+Author: Ryosuke Kojima
+Author-email: kojima.ryosuke.8e@kyoto-u.ac.jp
+Classifier: Programming Language :: Python :: 3.6
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+graph convolutional network library

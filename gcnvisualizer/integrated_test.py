@@ -26,7 +26,7 @@ logger.info("root direcotry %s" % str(root_dir))
 logger.info("START - check python envrionment.")
 try:
     import matplotlib
-    logger.debug("OK - matplotlib")    
+    logger.debug("OK - matplotlib")
     import sklearn
     logger.debug("OK - import sklearn")        
     import tensorflow

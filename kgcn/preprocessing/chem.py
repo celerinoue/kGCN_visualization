@@ -375,6 +375,7 @@ def concat_assay(assay_list):
 
     for assay_data in assay_list:
         if assay_data.dict_assay is not None:
+            print(assay_data.path)
             dict_all_assay = dict_all_assay if dict_all_assay is not None else {}
             dict_all_assay.update({(assay_data.path, str(k)): v for k, v in assay_data.dict_assay.items()})
 
@@ -400,7 +401,7 @@ def concat_assay(assay_list):
         if assay_data.profeat is not None:
             dict_profeat = dict_profeat if dict_profeat is not None else {}
             dict_profeat[assay_data.path] = assay_data.profeat
-    
+
     return dict_all_assay, dict_all_id_mol, dict_dragon_data, seq, seq_symbol, seq_domain, seq_domain_set, dict_profeat
 
 
@@ -532,7 +533,7 @@ def extract_mol_info(args):
         mol_obj_list, label_data, label_mask, dragon_data, task_name_list, mol_id_list, seq, seq_symbol, seq_domain, profeat = \
             generate_multimodal_data(args, mol_obj_list, label_data, label_mask, dragon_data, task_name_list,
                                      mol_id_list, seq, seq_symbol, seq_domain, profeat)
-        
+
     elif args.assay_dir is not None:
         mol_obj_list, label_data, label_mask, dragon_data, task_name_list, mol_id_list, seq, seq_symbol, seq_domain, profeat = \
             build_all_assay_data(args)
@@ -576,6 +577,7 @@ def main():
     eval_list = []
     test_list = []
     prefix_idx = 0
+    print(f'label_int  :')
     if args.solubility:
         args.sdf_label = "SOL_classification"
         args.sdf_label_active = "high"
@@ -714,7 +716,9 @@ def main():
     obj["mol_info"] = mol_info
     if not args.regression:
         label_int = np.ravel(obj['label_sparse'].argmax(axis=1)) if args.input_sparse_label else np.argmax(label_data_list, axis=1)
-        cw = class_weight.compute_class_weight("balanced", np.unique(label_int), label_int)
+        #print(np.unique(label_int))
+        #print(f'label_int  : {label_int}') 勝手につけた
+        cw = class_weight.compute_class_weight(class_weight = "balanced", classes = np.unique(label_int), y = label_int)
         obj["class_weight"] = cw
 
     if args.generate_mfp:
