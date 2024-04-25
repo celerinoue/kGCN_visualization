@@ -1,77 +1,78 @@
 # sample_chem/generative_model
 
-生成モデルのサンプル
+This repository is a example of a graph generative model
 
-使用データ: ZINC
+Dataset: ZINC
 
-# データ作成
+# Building data
 
-## データダウンロード
+## Downloading data
 
-`GraphCNN/sample_chem/generative_model/` に移動して以下のコマンドを実行
+Move to `GraphCNN/sample_chem/generative_model/` and execute the following command
 
 ```
-sh ./get_dataset.sh
+sh . /get_dataset.sh
 ```
 
-以下のデータが生成される
+The following data will be generated
 - ZINC/6_p0.smi
 
-できない場合は以下からダウンロード
+If not possible, download from
 https://drive.google.com/drive/folders/15wRLBPHnu6A8emMRM_gU5EQNAQeKk7q8?usp=sharing 
 
-## データのリサンプリング
-同様に、`GraphCNN/sample_chem/generative_model/` 内で以下のコマンドを実行
+## Resampling of data
+Similarly, run the following command in the directory `GraphCNN/sample_chem/generative_model/`.
 
 ```
-sh ./init.sh
+sh . /init.sh
 ```
-このスクリプトでは以下の操作を行う
+This script performs the following operations
 
-- すべてのデータを使うと多すぎるので、データセットの一部をリサンプリングし、数を減らす
-- preprocessing.pyを用いてデータセットファイル（jbl）を作成する
-  - single 結合情報なしのグラフを作成する
-  - multi 結合情報ありのグラフを作成する
+- reduce the number of data sets by resampling a portion of the data set, since using all the data would be too much
+- create a dataset file (jbl) using preprocessing.py
+  - graphs without bond information
+  - multi graphs with bond information
 
-生成されるファイルは以下の二つ
+The following two files are generated
 
 - dataset.single.jbl
 - dataset.multi.jbl
 
-デフォルトではinit.shは10000個のデータをリサンプリングするようになっている。
-より多くのデータを使う場合はinit.shの10000となっている部分を変更すればよい
+By default, init.sh resamples 10000 data.
+If you want to use more data, simply change the part of init.sh that says 10000.
 
-## 学習
-学習を開始するには以下のコマンドを実行する
+## Learning
+To start learning, execute the following commands
 
-single（結合情報なし）の場合
+In the case of single (without bond information)
 ```
 sh ./run.single.sh
 ```
 
-multi（結合情報あり）の場合
+In the case of multi (with bond information)
 ```
 sh ./run.multi.sh
 ```
 
-学習の詳細設定はそれぞれ以下の設定ファイルに記述されている。
+The detailed settings of the study are described in the following configuration files, respectively.
 - config_vae.single.json
 - config_vae.multi.json
 
-## 再構築
 
-上記のデフォルトの設定で学習を実行すると以下の２ファイルが生成される。これは、学習データ・バリデーションデータを再構築したデータセットファイルである。
+## Reconstruction
+
+The following two files are generated when training is performed with the above default settings. This is the dataset file with the reconstructed training and validation data.
 - recons.train.jbl
 - recons.valid.jbl
 
-また、外部のデータセットに対して、
+For the external dataset,
 ```
-kgcn-gen recons --config <設定ファイル>
+kgcn-gen recons --config <config file>
 ```
-のように実行した場合も、再構築データセットファイルが生成される
+will also generate a reconstructed dataset file
 
-### 再構築データセットファイル
-再構築データセットファイルは例えば以下のように読み込むことができる。
+### Reconstructed dataset files
+The reconstructed dataset file can be read, for example, as follows.
 
 ```
 import joblib
@@ -80,54 +81,58 @@ o=joblib.load("recons.valid.jbl")
 print(o.keys())
 ```
 
-ロードされたオブジェクトはディクショナリとなり二つのキーを持つ。
-- 'feature' 分子内の各原子の特徴行列
-  - データ数 x 分子内の最大原子数(70) x 原子特徴量の数(75)
-- 'dense_adj'　分子の結合確率行列
-  - データ数 x 結合の種類 x 分子内の最大原子数(70) x 分子内の最大原子数(70) 
-ただし、結合の種類はsingleモードの時は常に1、multiモードの時は5
+The loaded object is a dictionary with two keys.
+- feature' feature matrix for each atom in the molecule
+  - number of data x maximum number of atoms in molecule (70) x number of atomic features (75)
+- 'dense_adj' The bond probability matrix of the molecule
+  - Number of data x type of bond x maximum number of atoms in molecule (70) x maximum number of atoms in molecule (70) 
+Note that the bond type is always 1 in single mode is and 5 in multi mode.
 
-結合の種類と原子特徴量から分子を再構築するプログラムの例はconv_graph.py（後述）を参考にするとよい。
+An example of a program to reconstruct a molecule from bond types and atomic features is conv_graph.py
 
-結合の種類に関しては以下の5次元
+
+For an example of a program that reconstructs molecules from bond types and atomic features, 
+please refer to conv_graph.py (see below).
+
+The following 5 dimensions are available for bond types
 - Single, Double, Triple, Aromatic, Other
 
-原子特徴量は以下の75次元
-- 44 dimensions for atom types: 'C','N','O','S','F', 'Si','P','Cl','Br','Mg', 'Na','Ca','Fe','As','Al', 'I','B','V','K','Tl', 'Yb','Sb','Sn','Ag','Pd', 'Co','Se','Ti','Zn','H', # H? 'Li','Ge','Cu','Au','Ni', 'Cd','In','Mn','Zr','Cr', 'Pt','Hg','Pb','Unknown'
+Atomic features have the following 75 dimensions
+- 44 dimensions for atom types: 'C','N','O','S','F','Si','P','Cl','Br','Mg','Na','Ca','Fe','As','Al','I','B','V','K','Tl','Yb','Sb','Sn ','Ag','Pd','Co','Se','Ti','Zn','H', # H? 'Li','Ge','Cu','Au','Ni','Cd','In','Mn','Zr','Cr','Pt','Hg','Pb','Unknown'
 - 11 dimensions for GetDegree()
 - 7 dimensions for GetImplicitValence()
 - 1 dimension for GetFormalCharge()
 - 1 dimension for GetNumRadicalElectrons()
 - 5 dimensions for GetHybridization(): SP, SP2, SP3, SP3D, SP3D2
 - 1 dimension for GetIsAromatic()
-- 5 dimension for GetTotalNumHs()
+- 5 dimensions for GetTotalNumHs()
 
-## 再構築データセットファイルから分子の可視化
+## Visualization of molecules from a reconstructed dataset file
 
-conv_graph.pyに以下のように指定するとoutput_dirで指定したディレクトリ以下に10個の分子を可視化した画像ファイルが生成される。
+Specifying the following in conv_graph.py will generate image files visualizing 10 molecules under the directory specified in output_dir.
 ```
 python conv_graph.py recons.valid.jbl --num 10 --output_dir images/ 
 ```
 
-multiモードの場合は以下のコマンドを使用
+In multi mode, use the following command
 ```
 python conv_graph.py recons.valid.jbl --num 10 --output_dir images/ --multi
 ```
 
-conv_graph.pyのオプションで--threshold 0.9　のように指定すると、確率が0.9以上の結合のみ残して分子を作成する。
+If you specify --threshold 0.9 as an option in conv_graph.py, only the bonds with probability greater than or equal to 0.9 will be kept and the numerator will be created.
 
-## 生成
+## Generation
 
-再構築ではなく、ゼロから分子を生成する場合には以下のコマンドを実行する
-- singleモード
+To generate a molecule from scratch instead of rebuilding, execute the following commands
+- single mode
 ```
 sh run_gen.single.sh
 ```
-- multiモード
+- multi mode
 ```
 sh run_gen.multi.sh
 ```
-ここでは学習の時と同じデータセットを渡しているが、実際にプログラム中では使われずに、データを新たに生成し、
-`gen.single.test.jbl`もしくは`gen.multi.test.jbl`を生成する。
-フォーマットは 再構築データセットファイルと同じで、conv_graph.pyを用いて分子として可視化することもできる。
 
+Now, we are passing the same dataset as in training, but instead of actually using it in the program, we generate a new dataset,
+generate `gen.single.test.jbl` or `gen.multi.test.jbl`.
+The format is the same as the reconstructed data set file and can also be visualized as molecules using `conv_graph.py`.
