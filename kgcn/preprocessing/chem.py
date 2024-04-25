@@ -225,7 +225,7 @@ def generate_multimodal_data(args, mol_obj_list, label_data, label_mask, dragon_
 
     x = np.where(label_mask == 1)  # convert_multimodal_label
     # to identify a pair of mol and task
-    filename = "multimodal_data_index.csv"
+    filename = f"{os.path.splitext(args.output)[0]}.multimodal_data_index.csv"
     print(f"[SAVE] mol & task: {filename}")
     with open(filename, "w") as fp:
         for x0, x1 in zip(x[0], x[1]):
